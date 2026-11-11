@@ -91,5 +91,54 @@ Batteries</pre>
   <p>Scrap List is made by RushHourDev. Android is a trademark of Google LLC. Google Play is a trademark of Google LLC.</p>
   <p><a href="privacy/">Privacy policy</a></p>
 </footer>
+
+<dialog id="viewer" aria-label="Screenshot viewer">
+  <div class="stage">
+    <button type="button" class="close" aria-label="Close">&times;</button>
+    <button type="button" class="nav prev" aria-label="Previous screenshot">&lsaquo;</button>
+    <img id="viewer-img" alt="">
+    <p class="caption" id="viewer-caption"></p>
+    <button type="button" class="nav next" aria-label="Next screenshot">&rsaquo;</button>
+  </div>
+</dialog>
+<script>
+(function () {
+  var shots = Array.prototype.slice.call(document.querySelectorAll('.shots img'));
+  var dlg = document.getElementById('viewer');
+  if (!shots.length || !dlg || typeof dlg.showModal !== 'function') return;
+  var big = document.getElementById('viewer-img');
+  var cap = document.getElementById('viewer-caption');
+  var current = 0;
+
+  function show(i) {
+    current = (i + shots.length) % shots.length;
+    big.src = shots[current].getAttribute('src');
+    big.alt = shots[current].alt;
+    cap.textContent = shots[current].alt;
+    if (!dlg.open) dlg.showModal();
+  }
+
+  shots.forEach(function (img, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', 'Enlarge: ' + img.alt);
+    img.parentNode.insertBefore(b, img);
+    b.appendChild(img);
+    b.addEventListener('click', function () { show(i); });
+  });
+
+  dlg.querySelector('.close').addEventListener('click', function () { dlg.close(); });
+  dlg.querySelector('.prev').addEventListener('click', function () { show(current - 1); });
+  dlg.querySelector('.next').addEventListener('click', function () { show(current + 1); });
+  // A click on the dark area around the picture closes it.
+  dlg.addEventListener('click', function (e) {
+    if (e.target === dlg || e.target.classList.contains('stage')) dlg.close();
+  });
+  dlg.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); show(current + 1); }
+  });
+})();
+</script>
 </body>
 </html>
